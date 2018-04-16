@@ -297,7 +297,8 @@ class RawMantaClient(object):
     def put_object(self, mpath, content=None, path=None, file=None,
                    content_length=None,
                    content_type="application/octet-stream",
-                   durability_level=None):
+                   durability_level=None,
+                   role_tag=None):
         """PutObject
         https://apidocs.joyent.com/manta/api.html#PutObject
 
@@ -319,6 +320,7 @@ class RawMantaClient(object):
             'application/octet-stream'.
         @param durability_level {int} Optional. Default is 2. This tells
             Manta the number of copies to keep.
+        @param role_tag {str} Optional.
         """
         log.debug('PutObject %r', mpath)
         headers = {
@@ -343,6 +345,9 @@ class RawMantaClient(object):
             content = file.read()
         if not isinstance(content, bytes):
             raise errors.MantaError("'content' must be bytes, not unicode")
+
+	if role_tag is not None:
+		headers["Role-Tag"] = role_tag
 
         headers["Content-Length"] = str(len(content))
         md5 = hashlib.md5(content)
